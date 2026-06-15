@@ -7,27 +7,23 @@ class Namloader < Formula
   license "MIT"
 
   def install
-    vst3_dir = Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3"
+    vst3_dir = Pathname.new(ENV["HOME"])/"Library/Audio/Plug-Ins/VST3"
     vst3_dir.mkpath
-    
-    # Debug: check what's in the build directory
-    system "find", buildpath, "-name", "NAMLoader.vst3", "-type", "d"
-    system "find", buildpath, "-name", "Namloader.vst3", "-type", "d"
     
     # Find the extracted .vst3 bundle using find
     src = nil
-    IO.popen("find #{buildpath} -name 'NAMLoader.vst3' -type d").each_line do |line|
+    IO.popen("find #{buildpath} -name 'NAMLoader.vst3' -type d 2>/dev/null").each_line do |line|
       src = Pathname.new(line.chomp)
       break
     end
-    IO.popen("find #{buildpath} -name 'Namloader.vst3' -type d").each_line do |line|
+    IO.popen("find #{buildpath} -name 'Namloader.vst3' -type d 2>/dev/null").each_line do |line|
       src = Pathname.new(line.chomp)
       break
     end
     raise "NAMLoader.vst3 not found in extracted archive" unless src
     
-    # Copy the entire .vst3 bundle
-    cp_r src, vst3_dir/"Namloader.vst3"
+    # Copy the entire .vst3 bundle to absolute destination
+    system "cp", "-R", src.to_s, vst3_dir.to_s
   end
 
   def caveats
@@ -38,6 +34,6 @@ class Namloader < Formula
   end
 
   test do
-    assert_predicate Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3/Namloader.vst3", :exist?
+    assert_predicate Pathname.new(ENV["HOME"])/"Library/Audio/Plug-Ins/VST3/Namloader.vst3", :exist?
   end
 end
