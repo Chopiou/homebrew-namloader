@@ -10,16 +10,26 @@ class Namloader < Formula
     vst3_dir = Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3"
     vst3_dir.mkpath
     
-    # Debug: print current directory and buildpath
-    system "pwd"
-    system "ls", "-la"
+    # Debug: check what's in the build directory
     system "ls", "-la", buildpath
     
-    # The tarball extracts to a .vst3 bundle directory - find it
-    src = Pathname.glob("**/NAMLoader.vst3").first
-    src ||= Pathname.glob("**/Namloader.vst3").first
-    src ||= Pathname.glob(buildpath/"**/NAMLoader.vst3").first
-    src ||= Pathname.glob(buildpath/"**/Namloader.vst3").first
+    # Find the extracted .vst3 bundle
+    src = nil
+    # Search in current directory
+    Dir.glob("**/NAMLoader.vst3").each do |f|
+      src = Pathname.new(f) if File.directory?(f)
+    end
+    # Search in buildpath
+    Dir.glob(File.join(buildpath, "**", "NAMLoader.vst3")).each do |f|
+      src = Pathname.new(f) if File.directory?(f)
+    end
+    # Search for Namloader.vst3 too
+    Dir.glob("**/Namloader.vst3").each do |f|
+      src = Pathname.new(f) if File.directory?(f)
+    end
+    Dir.glob(File.join(buildpath, "**", "Namloader.vst3")).each do |f|
+      src = Pathname.new(f) if File.directory?(f)
+    end
     raise "NAMLoader.vst3 not found in extracted archive" unless src
     
     # Copy the entire .vst3 bundle
