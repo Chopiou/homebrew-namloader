@@ -9,10 +9,10 @@ class Namloader < Formula
   def install
     vst3_dir = Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3"
     vst3_dir.mkpath
-    # Find the extracted NAMLoader.vst3 directory in the current working directory
-    Dir.chdir(buildpath) do
-      cp_r "NAMLoader.vst3", vst3_dir/"Namloader.vst3"
-    end
+    # Find the extracted NAMLoader.vst3 directory in the buildpath
+    src = buildpath/"NAMLoader.vst3"
+    src = Dir.glob("**/NAMLoader.vst3").first if !src.exist?
+    cp_r src, vst3_dir/"Namloader.vst3"
   end
 
   def caveats
