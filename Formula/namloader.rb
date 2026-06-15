@@ -14,11 +14,12 @@ class Namloader < Formula
 
     # Source: buildpath/NAMLoader.vst3 (extracted directly from tarball)
     src = buildpath/"NAMLoader.vst3"
-    odie "NAMLoader.vst3 not found at #{src}" unless src.exist?
+    odie "NAMLoader.vst3 not found at #{src}" unless src.directory?
 
-    # Remove old version if present, then copy
+    # Remove old version if present, then copy via system cp
+    # (system cp avoids Ruby's cp_r relative-path recursion issues)
     dest.rmtree if dest.exist?
-    src.cp_r(dest)
+    system "cp", "-pR", src.to_s, dest.to_s
 
     # Touch prefix so Homebrew doesn't complain about empty installation
     (prefix/"INSTALL_RECEIPT.json").write(
@@ -38,6 +39,6 @@ class Namloader < Formula
   end
 
   test do
-    assert_predicate Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3/Namloader.vst3", :exist?
+    assert_predicate Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3/Namloader.vst3", :directory?
   end
 end
