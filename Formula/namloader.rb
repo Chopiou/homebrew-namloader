@@ -9,7 +9,7 @@ class Namloader < Formula
   def install
     vst3_dir = Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3"
     vst3_dir.mkpath
-    cp_r "Namloader.vst3", vst3_dir
+    cp_r "NAMLoader.vst3", vst3_dir/"Namloader.vst3"
   end
 
   def caveats
