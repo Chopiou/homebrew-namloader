@@ -22,8 +22,8 @@ class Namloader < Formula
     end
     raise "NAMLoader.vst3 not found in extracted archive" unless src
     
-    # Copy the entire .vst3 bundle to absolute destination
-    system "cp", "-R", src.to_s, vst3_dir.to_s
+    # Copy the entire .vst3 bundle to absolute destination using shell
+    system "cp", "-R", src.to_s, "/#{vst3_dir}/Namloader.vst3"
   end
 
   def caveats
