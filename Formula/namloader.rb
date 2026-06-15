@@ -7,23 +7,27 @@ class Namloader < Formula
   license "MIT"
 
   def install
-    vst3_dir = Pathname.new(ENV["HOME"])/"Library/Audio/Plug-Ins/VST3"
+    # Destination: ~/Library/Audio/Plug-Ins/VST3/Namloader.vst3
+    vst3_dir = Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3"
     vst3_dir.mkpath
-    
-    # Find the extracted .vst3 bundle using find
-    src = nil
-    IO.popen("find #{buildpath} -name 'NAMLoader.vst3' -type d 2>/dev/null").each_line do |line|
-      src = Pathname.new(line.chomp)
-      break
-    end
-    IO.popen("find #{buildpath} -name 'Namloader.vst3' -type d 2>/dev/null").each_line do |line|
-      src = Pathname.new(line.chomp)
-      break
-    end
-    raise "NAMLoader.vst3 not found in extracted archive" unless src
-    
-    # Copy the entire .vst3 bundle to absolute destination using shell
-    system "cp", "-R", src.to_s, "/#{vst3_dir}/Namloader.vst3"
+    dest = vst3_dir/"Namloader.vst3"
+
+    # Source: buildpath/NAMLoader.vst3 (extracted directly from tarball)
+    src = buildpath/"NAMLoader.vst3"
+    odie "NAMLoader.vst3 not found at #{src}" unless src.exist?
+
+    # Remove old version if present, then copy
+    dest.rmtree if dest.exist?
+    src.cp_r(dest)
+
+    # Touch prefix so Homebrew doesn't complain about empty installation
+    (prefix/"INSTALL_RECEIPT.json").write(
+      JSON.generate({
+        "plugin" => "Namloader.vst3",
+        "installed_to" => dest.to_s,
+        "version" => version
+      })
+    )
   end
 
   def caveats
@@ -34,6 +38,6 @@ class Namloader < Formula
   end
 
   test do
-    assert_predicate Pathname.new(ENV["HOME"])/"Library/Audio/Plug-Ins/VST3/Namloader.vst3", :exist?
+    assert_predicate Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3/Namloader.vst3", :exist?
   end
 end
