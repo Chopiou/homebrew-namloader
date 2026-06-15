@@ -11,24 +11,18 @@ class Namloader < Formula
     vst3_dir.mkpath
     
     # Debug: check what's in the build directory
-    system "ls", "-la", buildpath
+    system "find", buildpath, "-name", "NAMLoader.vst3", "-type", "d"
+    system "find", buildpath, "-name", "Namloader.vst3", "-type", "d"
     
-    # Find the extracted .vst3 bundle
+    # Find the extracted .vst3 bundle using find
     src = nil
-    # Search in current directory
-    Dir.glob("**/NAMLoader.vst3").each do |f|
-      src = Pathname.new(f) if File.directory?(f)
+    IO.popen("find #{buildpath} -name 'NAMLoader.vst3' -type d").each_line do |line|
+      src = Pathname.new(line.chomp)
+      break
     end
-    # Search in buildpath
-    Dir.glob(File.join(buildpath, "**", "NAMLoader.vst3")).each do |f|
-      src = Pathname.new(f) if File.directory?(f)
-    end
-    # Search for Namloader.vst3 too
-    Dir.glob("**/Namloader.vst3").each do |f|
-      src = Pathname.new(f) if File.directory?(f)
-    end
-    Dir.glob(File.join(buildpath, "**", "Namloader.vst3")).each do |f|
-      src = Pathname.new(f) if File.directory?(f)
+    IO.popen("find #{buildpath} -name 'Namloader.vst3' -type d").each_line do |line|
+      src = Pathname.new(line.chomp)
+      break
     end
     raise "NAMLoader.vst3 not found in extracted archive" unless src
     
