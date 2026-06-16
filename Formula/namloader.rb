@@ -2,8 +2,8 @@ class Namloader < Formula
   desc "Namloader VST3 plugin - template reusable pour inference NAM"
   homepage "https://github.com/Chopiou/nam-vst3"
   url "https://github.com/Chopiou/nam-vst3/releases/download/v0.0.10/Namloader-v0.0.10-macos-universal.vst3.tar.gz"
-  sha256 "c999ffe67bb7a295970258899d5b037492360b837f51ef868af06155872ecc9f"
-  version "0.0.10"
+  sha256 "a4973972f18cf750b3aef2caf95fdb963f55b2e585f85152689535f3aec29fb2"
+  version "0.0.11"
   license "MIT"
 
   def install
