@@ -7,9 +7,9 @@ class Namloader < Formula
   license "MIT"
 
   def install
-    # Destination: absolute path to ~/Library/Audio/Plug-Ins/VST3/Namloader.vst3
-    # Use Dir.home to avoid ~ expansion issues in Homebrew sandbox
-    dest = File.join(Dir.home, "Library", "Audio", "Plug-Ins", "VST3", "Namloader.vst3")
+    # Destination: absolute path to ~/Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3
+    # Use ENV["HOME"] to get REAL home (not sandboxed .brew_home)
+    dest = File.join(ENV["HOME"], "Library", "Audio", "Plug-Ins", "VST3", "Chopiou", "Namloader.vst3")
     FileUtils.mkdir_p(File.dirname(dest))
     FileUtils.rm_rf(dest) if File.exist?(dest)
 
@@ -32,12 +32,12 @@ class Namloader < Formula
 
   def caveats
     <<~EOS
-      Plugin installe dans ~/Library/Audio/Plug-Ins/VST3/Namloader.vst3
+      Plugin installe dans ~/Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3
       Redemarrez votre DAW (Reaper, etc.) pour le detecter.
     EOS
   end
 
   test do
-    assert_predicate Dir, :directory?, File.join(Dir.home, "Library", "Audio", "Plug-Ins", "VST3", "Namloader.vst3")
+    assert_predicate Dir, :directory?, File.join(ENV["HOME"], "Library", "Audio", "Plug-Ins", "VST3", "Chopiou", "Namloader.vst3")
   end
 end
