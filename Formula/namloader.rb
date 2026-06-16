@@ -8,27 +8,27 @@ class Namloader < Formula
 
   def install
     # Destination: ~/Library/Audio/Plug-Ins/VST3/Namloader.vst3
-    vst3_dir = Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3"
-    vst3_dir.mkpath
-    dest = vst3_dir/"Namloader.vst3"
+    home = File.expand_path("~")
+    dest = File.join(home, "Library", "Audio", "Plug-Ins", "VST3", "Namloader.vst3")
+    vst3_dir = File.dirname(dest)
+    FileUtils.mkdir_p(vst3_dir)
 
     # Source: buildpath/NAMLoader.vst3 (extracted directly from tarball)
-    src = buildpath/"NAMLoader.vst3"
-    odie "NAMLoader.vst3 not found at #{src}" unless src.directory?
+    src = File.join(buildpath.to_s, "NAMLoader.vst3")
+    odie "NAMLoader.vst3 not found at #{src}" unless File.directory?(src)
 
     # Remove old version if present, then copy via system cp
-    # (system cp avoids Ruby's cp_r relative-path recursion issues)
-    dest.rmtree if dest.exist?
-    system "cp", "-pR", src.to_s, dest.to_s
+    FileUtils.rm_rf(dest) if File.exist?(dest)
+    system "cp", "-pR", src, dest
 
     # Touch prefix so Homebrew doesn't complain about empty installation
-    (prefix/"INSTALL_RECEIPT.json").write(
+    FileUtils.mkdir_p(prefix)
+    File.write(File.join(prefix, "INSTALL_RECEIPT.json"),
       JSON.generate({
         "plugin" => "Namloader.vst3",
-        "installed_to" => dest.to_s,
+        "installed_to" => dest,
         "version" => version
-      })
-    )
+      }))
   end
 
   def caveats
@@ -39,6 +39,6 @@ class Namloader < Formula
   end
 
   test do
-    assert_predicate Pathname.new(Dir.home)/"Library/Audio/Plug-Ins/VST3/Namloader.vst3", :directory?
+    assert_predicate Dir, :directory?, File.expand_path("~/Library/Audio/Plug-Ins/VST3/Namloader.vst3")
   end
 end
