@@ -7,26 +7,34 @@ class Namloader < Formula
   license "MIT"
 
   def install
-    # Destination: absolute path - HARDCODED real user home to avoid sandbox issues
-    dest = "/Users/chopiou/Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3"
-    FileUtils.mkdir_p(File.dirname(dest))
-    FileUtils.rm_rf(dest) if File.exist?(dest)
-
-    # Source: buildpath IS the extracted NAMLoader.vst3 directory
+    # Install the .vst3 bundle into the Cellar (sandbox-safe)
+    # The buildpath IS the extracted NAMLoader.vst3 directory
     src = buildpath.to_s
     odie "NAMLoader.vst3 not found at #{src}" unless File.directory?(src)
 
-    # Use ditto with absolute paths
-    system "ditto", src, dest
+    # Install to prefix/Namloader.vst3 (sandbox-safe)
+    dest = prefix/"Namloader.vst3"
+    FileUtils.rm_rf(dest) if File.exist?(dest)
+    system "ditto", buildpath.to_s, dest
 
-    # Touch prefix so Homebrew doesn't complain about empty installation
+    # Create INSTALL_RECEIPT.json
     FileUtils.mkdir_p(prefix)
     File.write(File.join(prefix, "INSTALL_RECEIPT.json"),
       JSON.generate({
         "plugin" => "Namloader.vst3",
-        "installed_to" => dest,
+        "installed_to" => dest.to_s,
         "version" => version
       }))
+  end
+
+  def post_install
+    # After installation (outside sandbox), create the VST3 folder and symlink
+    # This runs outside the sandbox
+    home = ENV["HOME"]
+    dest = File.join(home, "Library", "Audio", "Plug-Ins", "VST3", "Chopiou", "Namloader.vst3")
+    FileUtils.mkdir_p(File.dirname(dest))
+    FileUtils.rm_rf(dest) if File.exist?(dest)
+    FileUtils.ln_s(opt_prefix/"Namloader.vst3", dest)
   end
 
   def caveats
@@ -36,7 +44,15 @@ class Namloader < Formula
     EOS
   end
 
+  def uninstall
+    # Remove symlink on uninstall
+    home = ENV["HOME"]
+    dest = File.join(home, "Library", "Audio", "Plug-Ins", "VST3", "Chopiou", "Namloader.vst3")
+    FileUtils.rm_f(dest) if File.symlink?(dest)
+  end
+
   test do
-    assert_predicate Dir, :directory?, "/Users/chopiou/Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3"
+    # Test that the plugin exists in the Cellar
+    assert_predicate Dir, :directory?, opt_prefix/"Namloader.vst3"
   end
 end
