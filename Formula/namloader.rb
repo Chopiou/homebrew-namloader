@@ -8,7 +8,6 @@ class Namloader < Formula
 
   def install
     # Install the .vst3 bundle into the Cellar (sandbox-safe)
-    # The buildpath IS the extracted NAMLoader.vst3 directory
     src = buildpath.to_s
     odie "NAMLoader.vst3 not found at #{src}" unless File.directory?(src)
 
@@ -29,30 +28,30 @@ class Namloader < Formula
 
   def post_install
     # After installation (outside sandbox), create the VST3 folder and symlink
-    # This runs outside the sandbox
-    home = ENV["HOME"]
-    dest = File.join(home, "Library", "Audio", "Plug-Ins", "VST3", "Chopiou", "Namloader.vst3")
-    FileUtils.mkdir_p(File.dirname(dest))
+    # System-wide VST3 directory: /Library/Audio/Plug-Ins/VST3/Chopiou
+    dest_dir = "/Library/Audio/Plug-Ins/VST3/Chopiou"
+    dest = File.join(dest_dir, "Namloader.vst3")
+    FileUtils.mkdir_p(dest_dir)
     FileUtils.rm_rf(dest) if File.exist?(dest)
     FileUtils.ln_s(opt_prefix/"Namloader.vst3", dest)
   end
 
   def caveats
     <<~EOS
-      Plugin installe dans ~/Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3
+      Plugin installe dans /Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3
       Redemarrez votre DAW (Reaper, etc.) pour le detecter.
+      Note: nécessite sudo pour /Library, donc lance : brew install --cask namloader
+      Ou installe manuellement : sudo ln -s #{opt_prefix}/Namloader.vst3 /Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3
     EOS
   end
 
   def uninstall
     # Remove symlink on uninstall
-    home = ENV["HOME"]
-    dest = File.join(home, "Library", "Audio", "Plug-Ins", "VST3", "Chopiou", "Namloader.vst3")
+    dest = "/Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3"
     FileUtils.rm_f(dest) if File.symlink?(dest)
   end
 
   test do
-    # Test that the plugin exists in the Cellar
     assert_predicate Dir, :directory?, opt_prefix/"Namloader.vst3"
   end
 end
