@@ -8,9 +8,10 @@ class Namloader < Formula
 
   def install
     # Destination: ~/Library/Audio/Plug-Ins/VST3/Namloader.vst3
-    # Use Pathname for proper home expansion in Homebrew sandbox
-    dest = Pathname.new("~").expand_path + "Library/Audio/Plug-Ins/VST3/Namloader.vst3"
-    vst3_dir = dest.dirname
+    # Build absolute path explicitly using File.expand_path
+    home = File.expand_path("~")
+    dest = File.join(home, "Library", "Audio", "Plug-Ins", "VST3", "Namloader.vst3")
+    vst3_dir = File.dirname(dest)
     FileUtils.mkdir_p(vst3_dir)
 
     # Source: buildpath IS the extracted NAMLoader.vst3 directory
@@ -19,17 +20,17 @@ class Namloader < Formula
 
     # Remove old version if present, then copy via system cp
     FileUtils.rm_rf(dest) if File.exist?(dest)
-    FileUtils.mkdir_p(dest.dirname)
+    FileUtils.mkdir_p(File.dirname(dest))
     
     # Use explicit absolute paths for both src and dest
-    system "cp", "-pR", src, dest.to_s
+    system "cp", "-pR", src, dest
 
     # Touch prefix so Homebrew doesn't complain about empty installation
     FileUtils.mkdir_p(prefix)
-    File.write(prefix/"INSTALL_RECEIPT.json",
+    File.write(File.join(prefix, "INSTALL_RECEIPT.json"),
       JSON.generate({
         "plugin" => "Namloader.vst3",
-        "installed_to" => dest.to_s,
+        "installed_to" => dest,
         "version" => version
       }))
   end
@@ -42,6 +43,6 @@ class Namloader < Formula
   end
 
   test do
-    assert_predicate Dir, :directory?, Pathname.new("~").expand_path + "Library/Audio/Plug-Ins/VST3/Namloader.vst3"
+    assert_predicate Dir, :directory?, File.expand_path("~/Library/Audio/Plug-Ins/VST3/Namloader.vst3")
   end
 end
