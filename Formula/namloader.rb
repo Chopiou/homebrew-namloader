@@ -8,13 +8,13 @@ class Namloader < Formula
 
   def install
     # Destination: ~/Library/Audio/Plug-Ins/VST3/Namloader.vst3
-    home = File.expand_path("~")
+    # Use ENV["HOME"] instead of File.expand_path("~") for Homebrew compatibility
+    home = ENV["HOME"]
     dest = File.join(home, "Library", "Audio", "Plug-Ins", "VST3", "Namloader.vst3")
     vst3_dir = File.dirname(dest)
     FileUtils.mkdir_p(vst3_dir)
 
     # Source: buildpath is already the extracted NAMLoader.vst3 directory!
-    # buildpath points to /private/tmp/namloader-XXXXXX/NAMLoader.vst3
     src = buildpath.to_s
     odie "NAMLoader.vst3 not found at #{src}" unless File.directory?(src)
 
