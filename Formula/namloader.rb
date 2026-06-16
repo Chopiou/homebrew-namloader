@@ -7,21 +7,17 @@ class Namloader < Formula
   license "MIT"
 
   def install
-    # Destination: ~/Library/Audio/Plug-Ins/VST3/Namloader.vst3
-    # Use absolute path to avoid any expansion issues
-    dest = File.join(Dir.home, "Library", "Audio", "Plug-Ins", "VST3", "Namloader.vst3")
+    # Destination: absolute path to ~/Library/Audio/Plug-Ins/VST3/Namloader.vst3
+    dest = File.expand_path(File.join("~", "Library", "Audio", "Plug-Ins", "VST3", "Namloader.vst3"))
     FileUtils.mkdir_p(File.dirname(dest))
+    FileUtils.rm_rf(dest) if File.exist?(dest)
 
     # Source: buildpath IS the extracted NAMLoader.vst3 directory
     src = buildpath.to_s
     odie "NAMLoader.vst3 not found at #{src}" unless File.directory?(src)
 
-    # Remove old version if present
-    FileUtils.rm_rf(dest) if File.exist?(dest)
-    FileUtils.mkdir_p(File.dirname(dest))
-
-    # Use explicit absolute path for destination
-    system "cp", "-pR", src, dest
+    # Use ditto which is more reliable on macOS for bundle copying
+    system "ditto", src, dest
 
     # Touch prefix so Homebrew doesn't complain about empty installation
     FileUtils.mkdir_p(prefix)
@@ -41,6 +37,6 @@ class Namloader < Formula
   end
 
   test do
-    assert_predicate Dir, :directory?, File.join(Dir.home, "Library", "Audio", "Plug-Ins", "VST3", "Namloader.vst3")
+    assert_predicate Dir, :directory?, File.expand_path("~/Library/Audio/Plug-Ins/VST3/Namloader.vst3")
   end
 end
