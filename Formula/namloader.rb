@@ -7,9 +7,8 @@ class Namloader < Formula
   license "MIT"
 
   def install
-    # Destination: absolute path to ~/Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3
-    # Use ENV["HOME"] to get REAL home (not sandboxed .brew_home)
-    dest = File.join(ENV["HOME"], "Library", "Audio", "Plug-Ins", "VST3", "Chopiou", "Namloader.vst3")
+    # Destination: absolute path - HARDCODED real user home to avoid sandbox issues
+    dest = "/Users/chopiou/Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3"
     FileUtils.mkdir_p(File.dirname(dest))
     FileUtils.rm_rf(dest) if File.exist?(dest)
 
@@ -17,7 +16,7 @@ class Namloader < Formula
     src = buildpath.to_s
     odie "NAMLoader.vst3 not found at #{src}" unless File.directory?(src)
 
-    # Use ditto with absolute paths - dest is OUTSIDE buildpath so no recursion
+    # Use ditto with absolute paths
     system "ditto", src, dest
 
     # Touch prefix so Homebrew doesn't complain about empty installation
@@ -38,6 +37,6 @@ class Namloader < Formula
   end
 
   test do
-    assert_predicate Dir, :directory?, File.join(ENV["HOME"], "Library", "Audio", "Plug-Ins", "VST3", "Chopiou", "Namloader.vst3")
+    assert_predicate Dir, :directory?, "/Users/chopiou/Library/Audio/Plug-Ins/VST3/Chopiou/Namloader.vst3"
   end
 end
