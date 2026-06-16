@@ -13,8 +13,9 @@ class Namloader < Formula
     vst3_dir = File.dirname(dest)
     FileUtils.mkdir_p(vst3_dir)
 
-    # Source: buildpath/NAMLoader.vst3 (extracted directly from tarball)
-    src = File.join(buildpath.to_s, "NAMLoader.vst3")
+    # Source: buildpath is already the extracted NAMLoader.vst3 directory!
+    # buildpath points to /private/tmp/namloader-XXXXXX/NAMLoader.vst3
+    src = buildpath.to_s
     odie "NAMLoader.vst3 not found at #{src}" unless File.directory?(src)
 
     # Remove old version if present, then copy via system cp
